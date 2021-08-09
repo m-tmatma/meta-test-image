@@ -1,5 +1,5 @@
 # see https://yocto.yoctoproject.narkive.com/Q2AJtSDn/patch-nginx-module-add-ngx-http-auth-pam-module
-LICENSE = "Unknown"
+LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://README.markdown;md5=a544b5be63ad173fe62f239478c04aca"
 
 SRC_URI = "git://github.com/openresty/headers-more-nginx-module;protocol=https"

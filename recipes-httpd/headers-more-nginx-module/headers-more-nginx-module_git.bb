@@ -24,3 +24,10 @@ do_install () {
 
 FILES_${PN} += "${PN}/*"
 FILES_${PN} += "${PN}/.*"
+
+# fix
+# ERROR: headers-more-nginx-module-0.33+gitAUTOINC+f85af9649b-r0 do_package_qa: QA Issue:
+# /headers-more-nginx-module/util/build.sh contained in package headers-more-nginx-module
+# requires /bin/bash, but no providers found in RDEPENDS_headers-more-nginx-module? [file-rdeps]
+RDEPENDS_${PN} += "bash"
+

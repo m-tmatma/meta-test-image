@@ -13,3 +13,7 @@ IMAGE_INSTALL_append = " \
 IMAGE_INSTALL_append = " \
     go-helloworld \
 "
+
+IMAGE_INSTALL_append = " \
+    rust-hello-world \
+"

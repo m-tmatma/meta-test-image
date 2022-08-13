@@ -1,0 +1,37 @@
+From 60b591d207374ae4ebe742c1ce4019055c574c14 Mon Sep 17 00:00:00 2001
+From: Masaru Tsuchiyama <m.tmatma@gmail.com>
+Date: Fri, 12 Aug 2022 14:57:02 +0900
+Subject: [PATCH 2/2] add log
+
+---
+ drivers/mtd/nand/raw/nand_base.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
+index 881e768f636f..926cab4eb588 100644
+--- a/drivers/mtd/nand/raw/nand_base.c
++++ b/drivers/mtd/nand/raw/nand_base.c
+@@ -5047,6 +5047,20 @@ static int nand_detect(struct nand_chip *chip, struct nand_flash_dev *type)
+ 	if (!type)
+ 		type = nand_flash_ids;
+ 
++	struct nand_flash_dev * ptype = nand_flash_ids;
++	while(ptype->name != NULL)
++	{
++		printk("%s: %s %02x,%02x,%02x,%02x,%02x,%02x (%02x, %02x) size = %d",
++			__func__,
++			ptype->name,
++			ptype->id[0], ptype->id[1], ptype->id[2], ptype->id[3],
++			ptype->id[4], ptype->id[5],	ptype->id[6], ptype->id[7],
++			ptype->mfr_id, ptype->dev_id,
++			ptype->chipsize);
++		ptype++;
++	}
++
++
+ 	/*
+ 	 * Save the NAND_BUSWIDTH_16 flag before letting auto-detection logic
+ 	 * override it.
+-- 
+2.34.1
+

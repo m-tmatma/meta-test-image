@@ -1,0 +1,37 @@
+From 13b8a949ec32de457bbc7cb222b121cb5624e7ed Mon Sep 17 00:00:00 2001
+From: Masaru Tsuchiyama <m.tmatma@gmail.com>
+Date: Fri, 12 Aug 2022 13:50:22 +0900
+Subject: [PATCH 1/2] add log
+
+---
+ drivers/mtd/nand/raw/nandsim.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/mtd/nand/raw/nandsim.c b/drivers/mtd/nand/raw/nandsim.c
+index 0750121ac371..89682a586af5 100644
+--- a/drivers/mtd/nand/raw/nandsim.c
++++ b/drivers/mtd/nand/raw/nandsim.c
+@@ -2278,6 +2278,7 @@ static int __init ns_init_module(void)
+ 	/* and 'badblocks' parameters to work */
+ 	chip->options   |= NAND_SKIP_BBTSCAN;
+ 
++	printk("%s: bbt = %d\n", __func__, bbt);
+ 	switch (bbt) {
+ 	case 2:
+ 		chip->bbt_options |= NAND_BBT_NO_OOB;
+@@ -2304,6 +2305,12 @@ static int __init ns_init_module(void)
+ 		ns->geom.idbytes = 4;
+ 	else
+ 		ns->geom.idbytes = 2;
++	printk("%s: idbytes = %d, id_bytes = %02x, %02x, %02x, %02x, %02x, %02x, %02x, %02x\n",
++		__func__,
++		ns->geom.idbytes,
++		id_bytes[0], id_bytes[1], id_bytes[2], id_bytes[3],
++		id_bytes[4], id_bytes[5], id_bytes[6], id_bytes[7]
++	);
+ 	ns->regs.status = NS_STATUS_OK(ns);
+ 	ns->nxstate = STATE_UNKNOWN;
+ 	ns->options |= OPT_PAGE512; /* temporary value */
+-- 
+2.34.1
+

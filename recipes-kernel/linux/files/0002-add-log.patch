@@ -1,7 +1,7 @@
 From 60b591d207374ae4ebe742c1ce4019055c574c14 Mon Sep 17 00:00:00 2001
 From: Masaru Tsuchiyama <m.tmatma@gmail.com>
 Date: Fri, 12 Aug 2022 14:57:02 +0900
-Subject: [PATCH 2/2] add log
+Subject: [PATCH 2/3] add log
 
 ---
  drivers/mtd/nand/raw/nand_base.c | 14 ++++++++++++++

@@ -1,0 +1,155 @@
+From c56d0bbece5eb01d5063808726d7e2e8440e2715 Mon Sep 17 00:00:00 2001
+From: Masaru Tsuchiyama <m.tmatma@gmail.com>
+Date: Sun, 14 Aug 2022 13:17:21 +0900
+Subject: [PATCH 3/3] add log
+
+---
+ drivers/mtd/nand/raw/nand_base.c | 40 +++++++++++++++++++++++---------
+ 1 file changed, 29 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
+index 926cab4eb588..d87705a52e73 100644
+--- a/drivers/mtd/nand/raw/nand_base.c
++++ b/drivers/mtd/nand/raw/nand_base.c
+@@ -5005,6 +5005,7 @@ static int nand_detect(struct nand_chip *chip, struct nand_flash_dev *type)
+ 	 * after power-up.
+ 	 */
+ 	ret = nand_reset(chip, 0);
++	printk("[%s:%d] nand_reset() ret = %d\n", __func__, __LINE__, ret);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -5013,12 +5014,14 @@ static int nand_detect(struct nand_chip *chip, struct nand_flash_dev *type)
+ 
+ 	/* Send the command for reading device ID */
+ 	ret = nand_readid_op(chip, 0, id_data, 2);
++	printk("[%s:%d] nand_readid_op() ret = %d\n", __func__, __LINE__, ret);
+ 	if (ret)
+ 		return ret;
+ 
+ 	/* Read manufacturer and device IDs */
+ 	maf_id = id_data[0];
+ 	dev_id = id_data[1];
++	printk("%s: maf_id = %02x, dev_id = %02x\n", __func__, maf_id, dev_id);
+ 
+ 	/*
+ 	 * Try again to make sure, as some systems the bus-hold or other
+@@ -5029,6 +5032,7 @@ static int nand_detect(struct nand_chip *chip, struct nand_flash_dev *type)
+ 
+ 	/* Read entire ID string */
+ 	ret = nand_readid_op(chip, 0, id_data, sizeof(chip->id.data));
++	printk("[%s:%d] nand_readid_op() ret = %d\n", __func__, __LINE__, ret);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -5044,23 +5048,28 @@ static int nand_detect(struct nand_chip *chip, struct nand_flash_dev *type)
+ 	manufacturer_desc = nand_get_manufacturer_desc(maf_id);
+ 	chip->manufacturer.desc = manufacturer_desc;
+ 
++	printk("%s: type = %p\n", __func__, type);
++	printk("%s: id = %02x, name = %s\n", __func__, manufacturer_desc->id, manufacturer_desc->name);
++	printk("[%s:%d] chip->options = %x\n", __func__, __LINE__, chip->options);
++
+ 	if (!type)
+ 		type = nand_flash_ids;
+ 
+-	struct nand_flash_dev * ptype = nand_flash_ids;
+-	while(ptype->name != NULL)
+ 	{
+-		printk("%s: %s %02x,%02x,%02x,%02x,%02x,%02x (%02x, %02x) size = %d",
+-			__func__,
+-			ptype->name,
+-			ptype->id[0], ptype->id[1], ptype->id[2], ptype->id[3],
+-			ptype->id[4], ptype->id[5],	ptype->id[6], ptype->id[7],
+-			ptype->mfr_id, ptype->dev_id,
+-			ptype->chipsize);
+-		ptype++;
++		struct nand_flash_dev * ptype = nand_flash_ids;
++		while(ptype->name != NULL)
++		{
++			printk("%s: %-30s %02x,%02x,%02x,%02x,%02x,%02x (%02x, %02x) size = %d",
++				__func__,
++				ptype->name,
++				ptype->id[0], ptype->id[1], ptype->id[2], ptype->id[3],
++				ptype->id[4], ptype->id[5],	ptype->id[6], ptype->id[7],
++				ptype->mfr_id, ptype->dev_id,
++				ptype->chipsize);
++			ptype++;
++		}
+ 	}
+ 
+-
+ 	/*
+ 	 * Save the NAND_BUSWIDTH_16 flag before letting auto-detection logic
+ 	 * override it.
+@@ -5076,6 +5085,7 @@ static int nand_detect(struct nand_chip *chip, struct nand_flash_dev *type)
+ 	 */
+ 	chip->options &= ~NAND_BUSWIDTH_16;
+ 
++	printk("[%s:%d] chip->options = %x\n", __func__, __LINE__, chip->options);
+ 	for (; type->name != NULL; type++) {
+ 		if (is_full_id_nand(type)) {
+ 			if (find_full_id_nand(chip, type))
+@@ -5095,12 +5105,14 @@ static int nand_detect(struct nand_chip *chip, struct nand_flash_dev *type)
+ 
+ 		/* Check if the chip is JEDEC compliant */
+ 		ret = nand_jedec_detect(chip);
++		printk("[%s:%d] nand_jedec_detect() ret = %d\n", __func__, __LINE__, ret);
+ 		if (ret < 0)
+ 			return ret;
+ 		else if (ret)
+ 			goto ident_done;
+ 	}
+ 
++	printk("[%s:%d] type->name = %s\n", __func__, __LINE__, type->name);
+ 	if (!type->name)
+ 		return -ENODEV;
+ 
+@@ -5108,10 +5120,12 @@ static int nand_detect(struct nand_chip *chip, struct nand_flash_dev *type)
+ 	if (!chip->parameters.model)
+ 		return -ENOMEM;
+ 
++	printk("[%s:%d] chip->options = %x\n", __func__, __LINE__, chip->options);
+ 	if (!type->pagesize)
+ 		nand_manufacturer_detect(chip);
+ 	else
+ 		nand_decode_id(chip, type);
++	printk("[%s:%d] chip->options = %x\n", __func__, __LINE__, chip->options);
+ 
+ 	/* Get chip options */
+ 	chip->options |= type->options;
+@@ -5140,6 +5154,7 @@ static int nand_detect(struct nand_chip *chip, struct nand_flash_dev *type)
+ 		pr_warn("bus width %d instead of %d bits\n", busw ? 16 : 8,
+ 			(chip->options & NAND_BUSWIDTH_16) ? 16 : 8);
+ 		ret = -EINVAL;
++		printk("[%s:%d] EINVAL\n", __func__, __LINE__);
+ 
+ 		goto free_detect_allocation;
+ 	}
+@@ -5449,6 +5464,7 @@ static int nand_scan_ident(struct nand_chip *chip, unsigned int maxchips,
+ 	chip->current_interface_config = nand_get_reset_interface_config();
+ 
+ 	ret = rawnand_dt_init(chip);
++	printk("[%s:%d] rawnand_dt_init() ret = %d\n", __func__, __LINE__, ret);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -5459,6 +5475,7 @@ static int nand_scan_ident(struct nand_chip *chip, unsigned int maxchips,
+ 	nand_set_defaults(chip);
+ 
+ 	ret = nand_legacy_check_hooks(chip);
++	printk("[%s:%d] nand_legacy_check_hooks() ret = %d\n", __func__, __LINE__, ret);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -5466,6 +5483,7 @@ static int nand_scan_ident(struct nand_chip *chip, unsigned int maxchips,
+ 
+ 	/* Read the flash type */
+ 	ret = nand_detect(chip, table);
++	printk("[%s:%d] nand_detect() ret = %d\n", __func__, __LINE__, ret);
+ 	if (ret) {
+ 		if (!(chip->options & NAND_SCAN_SILENT_NODEV))
+ 			pr_warn("No NAND device found\n");
+-- 
+2.34.1
+

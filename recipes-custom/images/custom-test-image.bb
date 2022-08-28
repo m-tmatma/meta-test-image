@@ -9,4 +9,5 @@ IMAGE_INSTALL:append = " \
     nginx \
     ntpdate \
     avahi-daemon \
+    python3-sqlite3 \
 "
